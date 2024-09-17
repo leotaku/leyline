@@ -58,7 +58,9 @@
     (prog1 locations)))
 
 (defun leyline--apply-diff (diff-text)
-  (let ((locations (leyline--diff-locations diff-text (buffer-file-name))))
+  (let ((locations (leyline--diff-locations diff-text (buffer-file-name)))
+        (min (point-max))
+        (max (point-min)))
     (prog1 nil
       (pcase-dolist (`(,buf ,line-offset ,pos ,old ,new ,switched) locations)
         (unless (and (string= (car old) (buffer-substring (car pos) (cdr pos)))
@@ -68,7 +70,11 @@
         (pcase-dolist (`(,buf ,line-offset ,pos ,old ,new ,switched) locations)
           (goto-char (car pos))
           (delete-region (car pos) (cdr pos))
-          (insert (car new))))
+          (insert (car new))
+          (setq min (min min (car pos)))
+          (setq max (max max (+ (car pos) (length (car new)))))))
+      (when (<= min max)
+        (pulse-momentary-highlight-region min max)))))
 
 (defun leyline--construct-prompt (task buffer-text &optional old-response)
   (concat (string-join '("You are a large language model and a careful programmer."
