@@ -5,7 +5,7 @@
 ;; Author: Leo Gaskin <leo.gaskin@le0.gs>
 ;; Created: 17 September 2024
 ;; Homepage: https://github.com/leotaku/leyline
-;; Keywords:
+;; Keywords: convenience tools llm
 ;; Package-Version: 0.1.0
 ;; Package-Requires: ((emacs "25.1") (ellama "0.11"))
 
