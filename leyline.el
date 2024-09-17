@@ -84,7 +84,7 @@
                        " ")
           "\n\n"
           "### Look at this code:\n\n"
-          (buffer-string)
+          buffer-text
           "\n\n"
           (string-join '("From now on, only respond in the form of a minimal patch-compatible diff"
                          "INCLUDING @@ line numbers markers!"
