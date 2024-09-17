@@ -67,12 +67,14 @@
                      (= (car pos) (save-excursion (goto-char (car pos)) (pos-bol))))
           (signal 'leyline-error-apply-diff nil)))
       (save-excursion
-        (pcase-dolist (`(,buf ,line-offset ,pos ,old ,new ,switched) locations)
-          (goto-char (car pos))
-          (delete-region (car pos) (cdr pos))
-          (insert (car new))
-          (setq min (min min (car pos)))
-          (setq max (max max (+ (car pos) (length (car new)))))))
+        (push (point) buffer-undo-list)
+        (with-undo-amalgamate
+          (pcase-dolist (`(,buf ,line-offset ,pos ,old ,new ,switched) locations)
+            (goto-char (car pos))
+            (delete-region (car pos) (cdr pos))
+            (insert (car new))
+            (setq min (min min (car pos)))
+            (setq max (max max (+ (car pos) (length (car new))))))))
       (when (<= min max)
         (pulse-momentary-highlight-region min max)))))
 
