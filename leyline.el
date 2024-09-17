@@ -113,6 +113,7 @@
        (when (y-or-n-p "Failed to recieve an apppropriate result, retry?")
          (leyline-buffer task response))))))
 
+;;;###autoload
 (defun leyline-buffer (task &optional old-response)
   (interactive "sTask: ")
   (let* ((full-prompt (leyline--construct-prompt task (buffer-string) old-response))
