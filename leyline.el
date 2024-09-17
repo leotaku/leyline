@@ -93,10 +93,9 @@
           "\n\n"
           "### This is your task:\n\n" task
           "\n\n"
-          (if old-response
-              (concat
-               "### This is your previous response, but you failed to create a proper diff, please retry!"
-               "\n\n" old-response "\n\n"))))
+          (when old-response
+            (concat "### This is your previous response, but you failed to create a proper diff, please retry!"
+                    "\n\n" old-response "\n\n"))))
 
 (defun leyline--create-debug-buffer (prompt)
   (with-current-buffer (get-buffer-create "*ellama-debug*")
