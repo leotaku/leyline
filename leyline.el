@@ -103,7 +103,7 @@
     (insert prompt)
     (current-buffer)))
 
-(defun leyline--handle-response (response buffer debug-buffer)
+(defun leyline--handle-response (task response buffer debug-buffer)
   (with-current-buffer debug-buffer
     (insert response))
   (with-current-buffer buffer
@@ -122,7 +122,8 @@
     (ellama-stream
      full-prompt
      :filter (lambda (chunk) "")
-     :on-done (lambda (response) (leyline--handle-response response buffer debug-buffer)))))
+     :on-done (lambda (response)
+                (leyline--handle-response task response buffer debug-buffer)))))
 
 (provide 'leyline)
 
