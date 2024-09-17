@@ -57,7 +57,7 @@
           (diff-hunk-next))))
     (prog1 locations)))
 
-(defun leyline--apply-diff (diff-text &optional markers)
+(defun leyline--apply-diff (diff-text)
   (let ((locations (leyline--diff-locations diff-text (buffer-file-name))))
     (prog1 nil
       (pcase-dolist (`(,buf ,line-offset ,pos ,old ,new ,switched) locations)
@@ -66,17 +66,9 @@
           (signal 'leyline-error-apply-diff nil)))
       (save-excursion
         (pcase-dolist (`(,buf ,line-offset ,pos ,old ,new ,switched) locations)
-          (if markers
-              (progn
-                (goto-char (cdr pos))
-                (insert (concat "=======\n"
-                                (car new)
-                                ">>>>>>> NEW\n"))
-                (goto-char (car pos))
-                (insert (concat "<<<<<<< HEAD\n")))
-            (goto-char (car pos))
-            (delete-region (car pos) (cdr pos))
-            (insert (car new))))))))
+          (goto-char (car pos))
+          (delete-region (car pos) (cdr pos))
+          (insert (car new))))
 
 (defun leyline--construct-prompt (task buffer-text &optional old-response)
   (concat (string-join '("You are a large language model and a careful programmer."
