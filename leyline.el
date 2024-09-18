@@ -101,6 +101,7 @@
   (with-current-buffer (get-buffer-create "*ellama-debug*")
     (delete-region (point-min) (point-max))
     (insert prompt)
+    (insert "Response:\n\n")
     (current-buffer)))
 
 (defun leyline--handle-response (task response buffer debug-buffer)
