@@ -116,7 +116,7 @@
 
 ;;;###autoload
 (defun leyline-buffer (task &optional old-response)
-  (interactive "sTask: ")
+  (interactive "*sTask: ")
   (let* ((full-prompt (leyline--construct-prompt task (buffer-string) old-response))
          (buffer (current-buffer))
          (debug-buffer (leyline--create-debug-buffer full-prompt)))
