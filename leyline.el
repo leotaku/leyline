@@ -98,7 +98,7 @@
                     "\n\n" old-response "\n\n"))))
 
 (defun leyline--create-debug-buffer (prompt)
-  (with-current-buffer (get-buffer-create "*ellama-debug*")
+  (with-current-buffer (get-buffer-create "*leyline-debug*")
     (delete-region (point-min) (point-max))
     (insert prompt)
     (insert "Response:\n\n")
