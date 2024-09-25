@@ -151,10 +151,11 @@
 
 (defun leyline--construct-prompt (task buffer-text &optional old-response)
   (concat (string-join '("You are a large language model and a careful programmer."
-                         "Provide code and only code as output without any additional text, prompt or note.")
+                         "Provide code and only code as output without any additional text, prompt or note."
+                         "Do not add an explanation! Do not add code block markers!")
                        " ")
           "\n\n"
-          "### Look at this code:\n\n"
+          "Look at this code:\n\n"
           buffer-text
           "\n\n"
           (string-join '("From now on, only respond in the form of a minimal patch-compatible diff"
@@ -162,10 +163,11 @@
                          "Make sure the line markers are absolutely correct!")
                        " ")
           "\n\n"
-          "### This is your task:\n\n" task
+          "This is your task:\n\n"
+          task
           "\n\n"
           (when old-response
-            (concat "### This is your previous response, but you failed to create a proper diff, please retry!"
+            (concat "This is your previous response, but you failed to create a proper diff, please retry!"
                     "\n\n" old-response "\n\n"))))
 
 (defun leyline--create-debug-buffer (prompt)
