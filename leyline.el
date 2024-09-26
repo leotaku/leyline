@@ -156,9 +156,7 @@
               (setq min (min min (+ (car pos) (leyline--diff-skip-length diff))))
               (setq max (max max (- (cdr pos) (leyline--diff-skip-length (reverse diff)))))))))
       (when (<= min max)
-        (pulse-momentary-highlight-region min max)
-        ;; TODO: (goto-char min)
-        ))))
+        (pulse-momentary-highlight-region min max)))))
 
 (defun leyline--create-debug-buffer (prompt)
   (with-current-buffer (get-buffer-create "*leyline-debug*")
