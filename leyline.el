@@ -147,14 +147,15 @@
         (with-undo-amalgamate
           (pcase-dolist (`(,buf ,line-offset ,pos ,old ,new ,switched) locations)
             (goto-char (car pos))
-            (let ((diff (leyline--needleman-diff (car old) (car new))))
+            (let ((diff (leyline--needleman-diff (car old) (car new)))
+                  (changed-end (+ (car pos) (length (car new)))))
               (dolist (action diff)
                 (pcase-exhaustive action
                   (`(insert . ,char) (insert-char char))
                   (`(keep . ,_) (forward-char 1))
                   (`(delete . ,_) (delete-char 1))))
               (setq min (min min (+ (car pos) (leyline--diff-skip-length diff))))
-              (setq max (max max (- (cdr pos) (leyline--diff-skip-length (reverse diff)))))))))
+              (setq max (max max (- changed-end (leyline--diff-skip-length (reverse diff)))))))))
       (when (<= min max)
         (pulse-momentary-highlight-region min max)))))
 
