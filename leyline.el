@@ -176,9 +176,7 @@
        (when (y-or-n-p "Failed to recieve an apppropriate result, retry?")
          (leyline-buffer task response))))))
 
-;;;###autoload
-(defun leyline-buffer (task &optional old-response)
-  (interactive "*sTask: ")
+(defun leyline--buffer-internal (task &optional old-response)
   (let* ((full-prompt (leyline--construct-prompt task (buffer-string) old-response))
          (buffer (current-buffer))
          (debug-buffer (leyline--create-debug-buffer full-prompt)))
@@ -187,6 +185,12 @@
      :filter (lambda (chunk) "")
      :on-done (lambda (response)
                 (leyline--handle-response task response buffer debug-buffer)))))
+
+;;;###autoload
+(defun leyline-buffer (task)
+  "Apply changes specified in TASK to the current buffer."
+  (interactive "*sTask: ")
+  (leyline--buffer-internal task nil))
 
 (provide 'leyline)
 
