@@ -173,7 +173,7 @@
     (condition-case err
         (leyline--apply-diff response)
       (leyline-error-apply-diff
-       (when (y-or-n-p "Failed to recieve an apppropriate result, retry?")
+       (when (y-or-n-p "Failed to receive an apppropriate result, retry?")
          (leyline-buffer task response))))))
 
 (defun leyline--buffer-internal (task &optional old-response)
