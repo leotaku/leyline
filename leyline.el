@@ -30,7 +30,19 @@
 ;; uses diff-compatible patches to ensure precise modifications and offers
 ;; error handling and retry mechanisms for robust operation.
 
+(require 'ellama)
+(require 'llm)
+
 ;;; Code:
+
+(defgroup leyline nil
+  "Tool for applying complex changes priovide by LLMs."
+  :group 'tools)
+
+(defcustom leyline-provider nil
+  "Backend LLM provider."
+  :group 'leyline
+  :type '(sexp :validate 'llm-standard-provider-p))
 
 (define-error 'leyline-error "Leyline error")
 
@@ -182,6 +194,7 @@
          (debug-buffer (leyline--create-debug-buffer full-prompt)))
     (ellama-stream
      full-prompt
+     :provider (or leyline-provider ellama-provider)
      :filter (lambda (chunk) "")
      :on-done (lambda (response)
                 (leyline--handle-response task response buffer debug-buffer)))))
