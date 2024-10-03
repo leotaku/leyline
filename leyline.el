@@ -7,7 +7,7 @@
 ;; Homepage: https://github.com/leotaku/leyline
 ;; Keywords: convenience tools llm
 ;; Package-Version: 0.1.0
-;; Package-Requires: ((emacs "25.1") (ellama "0.11"))
+;; Package-Requires: ((emacs "25.1") (llm "0.6.0") (spinner "1.7.4"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -30,8 +30,8 @@
 ;; uses diff-compatible patches to ensure precise modifications and offers
 ;; error handling and retry mechanisms for robust operation.
 
-(require 'ellama)
 (require 'llm)
+(require 'spinner)
 
 ;;; Code:
 
@@ -44,11 +44,18 @@
   :group 'leyline
   :type '(sexp :validate 'llm-standard-provider-p))
 
+(defvar-local leyline-current nil
+  "The running LLM request for the current buffer.")
+
 (define-error 'leyline-error "Leyline error")
 
 (define-error
  'leyline-error-apply-diff
  "Diff is not applicable" 'leyline-error)
+
+(define-error
+ 'leyline-error-provider
+ "Provider error" 'leyline-error)
 
 (defconst leyline-base-prompt
   (concat
@@ -183,27 +190,58 @@
     (insert response))
   (with-current-buffer buffer
     (condition-case err
-        (leyline--apply-diff response)
+        (prog1 (leyline--apply-diff response)
+          (setopt leyline-current nil)
+          (leyline-request-mode -1))
       (leyline-error-apply-diff
        (when (y-or-n-p "Failed to receive an apppropriate result, retry?")
-         (leyline-buffer task response))))))
+         (setopt leyline-current (leyline--buffer-internal task response)))))))
 
 (defun leyline--buffer-internal (task &optional old-response)
   (let* ((full-prompt (leyline--construct-prompt task (buffer-string) old-response))
          (buffer (current-buffer))
          (debug-buffer (leyline--create-debug-buffer full-prompt)))
-    (ellama-stream
-     full-prompt
-     :provider (or leyline-provider ellama-provider)
-     :filter (lambda (chunk) "")
-     :on-done (lambda (response)
-                (leyline--handle-response task response buffer debug-buffer)))))
+    (llm-chat-async
+     leyline-provider
+     (llm-make-chat-prompt full-prompt)
+     (lambda (response)
+       (leyline--handle-response task response buffer debug-buffer))
+     (lambda (error message)
+       (setopt leyline-current nil)
+       (leyline-request-mode -1)
+       (signal 'leyline-error-provider message)))))
 
 ;;;###autoload
 (defun leyline-buffer (task)
   "Apply changes specified in TASK to the current buffer."
   (interactive "*sTask: ")
-  (leyline--buffer-internal task nil))
+  (leyline-request-mode +1)
+  (setopt leyline-current (leyline--buffer-internal task nil)))
+
+;;;###autoload
+(defun leyline-cancel (&optional request)
+  "Cancel the given REQUEST or `leyline-current'."
+  (interactive)
+  (llm-cancel-request (or request leyline-current)))
+
+;;;###autoload
+(defun leyline-cancel-and-quit (&optional request)
+  "Cancel the given REQUEST or `leyline-current' and quit."
+  (interactive)
+  (leyline-cancel request)
+  (keyboard-quit))
+
+(define-minor-mode leyline-request-mode
+  "Minor mode for leyline buffers with an active request."
+  :interactive nil
+  :group 'leyline
+  :keymap '(([remap keyboard-quit] . leyline-cancel-and-quit))
+  (if leyline-request-mode
+      (progn
+        (add-hook 'kill-buffer-hook 'leyline-cancel nil t)
+        (spinner-start 'progress-bar))
+    (remove-hook 'kill-buffer-hook 'leyline-cancel)
+    (spinner-stop)))
 
 (provide 'leyline)
 
