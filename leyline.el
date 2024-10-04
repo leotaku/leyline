@@ -159,11 +159,11 @@
     (prog1 nil
       (pcase-dolist (`(,buf ,line-offset ,pos ,old ,new ,switched) locations)
         (unless (and (string= (car old) (buffer-substring (car pos) (cdr pos)))
-                     (= (car pos) (save-excursion (goto-char (car pos)) (pos-bol))))
+                     (= (car pos) (save-excursion (goto-char (car pos)) (line-beginning-position))))
           (signal 'leyline-error-apply-diff nil)))
       (save-excursion
         (push (point) buffer-undo-list)
-        (with-undo-amalgamate
+        (atomic-change-group
           (pcase-dolist (`(,buf ,line-offset ,pos ,old ,new ,switched) locations)
             (goto-char (car pos))
             (let ((diff (leyline--needleman-diff (car old) (car new)))
@@ -191,11 +191,11 @@
   (with-current-buffer buffer
     (condition-case err
         (prog1 (leyline--apply-diff response)
-          (setopt leyline-current nil)
+          (setq-local leyline-current nil)
           (leyline-request-mode -1))
       (leyline-error-apply-diff
        (when (y-or-n-p "Failed to receive an apppropriate result, retry?")
-         (setopt leyline-current (leyline--buffer-internal task response)))))))
+         (setq-local leyline-current (leyline--buffer-internal task response)))))))
 
 (defun leyline--buffer-internal (task &optional old-response)
   (let* ((full-prompt (leyline--construct-prompt task (buffer-string) old-response))
@@ -207,7 +207,7 @@
      (lambda (response)
        (leyline--handle-response task response buffer debug-buffer))
      (lambda (error message)
-       (setopt leyline-current nil)
+       (setq-local leyline-current nil)
        (leyline-request-mode -1)
        (signal 'leyline-error-provider message)))))
 
@@ -216,7 +216,7 @@
   "Apply changes specified in TASK to the current buffer."
   (interactive "*sTask: ")
   (leyline-request-mode +1)
-  (setopt leyline-current (leyline--buffer-internal task nil)))
+  (setq-local leyline-current (leyline--buffer-internal task nil)))
 
 ;;;###autoload
 (defun leyline-cancel (&optional request)
