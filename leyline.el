@@ -7,7 +7,7 @@
 ;; Homepage: https://github.com/leotaku/leyline
 ;; Keywords: convenience tools llm
 ;; Package-Version: 0.1.0
-;; Package-Requires: ((emacs "25.1") (llm "0.6.0") (spinner "1.7.4"))
+;; Package-Requires: ((emacs "28.1") (llm "0.6.0") (spinner "1.7.4"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
