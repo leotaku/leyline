@@ -102,7 +102,7 @@
           (diff-hunk-next))))
     (prog1 locations)))
 
-(cl-defun leyline--needleman-diff (a b &optional (score-fn #'equal) (indel-penalty -1))
+(cl-defun leyline--needleman-wunsch-diff (a b &optional (score-fn #'equal) (indel-penalty -1))
   (let* ((m (make-vector (1+ (length a)) nil))
          (score-fn (lambda (a b) (if (funcall score-fn a b) 1 -1)))
          (indel-penalty -1))
@@ -166,7 +166,7 @@
         (atomic-change-group
           (pcase-dolist (`(,buf ,line-offset ,pos ,old ,new ,switched) locations)
             (goto-char (car pos))
-            (let ((diff (leyline--needleman-diff (car old) (car new)))
+            (let ((diff (leyline--needleman-wunsch-diff (car old) (car new)))
                   (changed-end (+ (car pos) (length (car new)))))
               (dolist (action diff)
                 (pcase-exhaustive action
