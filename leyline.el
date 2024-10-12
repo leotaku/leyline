@@ -86,7 +86,7 @@
 (defun leyline--diff-locations (diff-text source-file-name)
   (let ((locations))
     (save-excursion
-      (with-current-buffer (get-buffer-create "patch")
+      (with-temp-buffer
         (setq-local diff-remembered-files-alist `((nil . ,source-file-name)))
         (delete-region (point-min) (point-max))
         (insert "--- " source-file-name "\n")
