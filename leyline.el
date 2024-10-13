@@ -212,7 +212,10 @@
        (leyline-request-mode -1)
        (when (y-or-n-p "Failed to receive an apppropriate result, retry?")
          (setq-local leyline-current (leyline--buffer-internal task response))
-         (leyline-request-mode +1))))))
+         (leyline-request-mode +1)))
+      (error
+       (leyline-request-mode -1)
+       (signal (car err) (cdr err))))))
 
 (defun leyline--buffer-internal (task &optional old-response)
   (let* ((full-prompt (leyline--construct-prompt task (buffer-string) old-response))
