@@ -83,25 +83,6 @@
      (concat "This is your previous response, but you failed to create a proper diff, please retry!"
              "\n\n" old-response "\n\n"))))
 
-(defun leyline--diff-locations (diff-text source-file-name)
-  (let ((locations))
-    (save-excursion
-      (with-temp-buffer
-        (setq-local diff-remembered-files-alist `((nil . ,source-file-name)))
-        (delete-region (point-min) (point-max))
-        (insert "--- " source-file-name "\n")
-        (insert "+++ " source-file-name "\n")
-        (insert diff-text)
-        (diff-fixup-modifs (point-min) (point-max))
-        (goto-char 0)
-        (diff-hunk-next)
-        (while (condition-case err
-                   (save-excursion (prog1 t (diff-hunk-next)))
-                 (error nil))
-          (push (diff-find-source-location nil nil t) locations)
-          (diff-hunk-next))))
-    (prog1 locations)))
-
 (defun leyline--parse-chunks (diff-text)
   (with-current-buffer (get-buffer-create "patch")
     (delete-region (point-min) (point-max))
