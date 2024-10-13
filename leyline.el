@@ -102,6 +102,46 @@
           (diff-hunk-next))))
     (prog1 locations)))
 
+(defun leyline--collect-chunks (diff-text buffer-alist)
+  (leyline--augument-simple-chunks (leyline--collect-simple-chunks diff-text) buffer-alist))
+
+(defun leyline--collect-simple-chunks (diff-text)
+  (with-current-buffer (get-buffer-create "patch")
+    (delete-region (point-min) (point-max))
+    (insert diff-text)
+    (let ((result))
+      (goto-char (point-min))
+      (while (< (point) (point-max))
+        (let ((line (buffer-substring-no-properties (1+ (line-beginning-position)) (line-end-position))))
+          (pcase (char-to-string (char-after (point)))
+            ("@"
+             ;; (save-excursion
+             ;;   (re-search-forward "@@.*@@")
+             ;;   (setq line (buffer-substring-no-properties (1+ (point)) (1+ (line-end-position))))
+             ;;   (push (cons line line) result))
+             (push `(nil "" "") result)
+             )
+            ("-" (setf (nth 1 (car result)) (concat (nth 1 (car result)) "\n" line)))
+            ("+" (setf (nth 2 (car result)) (concat (nth 2 (car result)) "\n" line)))
+            (" "
+             (setf (nth 1 (car result)) (concat (nth 1 (car result)) "\n" line))
+             (setf (nth 2 (car result)) (concat (nth 2 (car result)) "\n" line)))))
+        (forward-line))
+      (prog1 result))))
+
+(defun leyline--augument-simple-chunks (chunks buffer-alist)
+  (let ((result))
+    (pcase-dolist (`(,buffer-name ,old ,new) chunks)
+      (with-current-buffer (alist-get buffer-name buffer-alist)
+        (goto-char 0)
+        (if-let ((end (search-forward old nil t nil))
+                 (start (match-beginning 0)))
+            (if (not (search-forward old nil t nil))
+                (push `(,(current-buffer) nil ,(cons start end) ,(cons old 0) ,(cons new 0) nil) result)
+              (signal 'leyline-error-apply-diff "Multiple matches"))
+          (signal 'leyline-error-apply-diff "No match"))))
+    (nreverse result)))
+
 (cl-defun leyline--needleman-wunsch-diff (a b &optional (score-fn #'equal) (indel-penalty -1))
   (let* ((m (make-vector (1+ (length a)) nil))
          (score-fn (lambda (a b) (if (funcall score-fn a b) 1 -1)))
@@ -153,18 +193,14 @@
     (nreverse result)))
 
 (defun leyline--apply-diff (diff-text)
-  (let ((locations (leyline--diff-locations diff-text (buffer-file-name)))
+  (let ((locations (leyline--collect-chunks diff-text `((nil . ,(current-buffer)))))
         (min (point-max))
         (max (point-min)))
     (prog1 nil
-      (pcase-dolist (`(,buf ,line-offset ,pos ,old ,new ,switched) locations)
-        (unless (and (string= (car old) (buffer-substring (car pos) (cdr pos)))
-                     (= (car pos) (save-excursion (goto-char (car pos)) (line-beginning-position))))
-          (signal 'leyline-error-apply-diff nil)))
       (save-excursion
         (push (point) buffer-undo-list)
         (atomic-change-group
-          (pcase-dolist (`(,buf ,line-offset ,pos ,old ,new ,switched) locations)
+          (pcase-dolist (`(,buf ,_ ,pos ,old ,new ,_) locations)
             (goto-char (car pos))
             (let ((diff (leyline--needleman-wunsch-diff (car old) (car new)))
                   (changed-end (+ (car pos) (length (car new)))))
