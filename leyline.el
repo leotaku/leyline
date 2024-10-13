@@ -50,7 +50,7 @@
 (define-error 'leyline-error "Leyline error")
 
 (define-error
- 'leyline-error-apply-diff
+ 'leyline-error-diff
  "Diff is not applicable" 'leyline-error)
 
 (define-error
@@ -116,8 +116,8 @@
                    (start (match-beginning 0)))
               (if (not (search-forward old nil t nil))
                   (push `(,(current-buffer) nil ,(cons start end) ,(cons old 0) ,(cons new 0) nil) result)
-                (signal 'leyline-error-apply-diff "Multiple matches"))
-            (signal 'leyline-error-apply-diff "No match")))))
+                (signal 'leyline-error-diff "Multiple matches"))
+            (signal 'leyline-error-diff "No match")))))
     (nreverse result)))
 
 (cl-defun leyline--needleman-wunsch-diff (a b &optional (score-fn #'equal) (indel-penalty -1))
@@ -208,7 +208,7 @@
         (prog1 (leyline--apply-diff response)
           (setq-local leyline-current nil)
           (leyline-request-mode -1))
-      (leyline-error-apply-diff
+      (leyline-error-diff
        (if (y-or-n-p "Failed to receive an apppropriate result, retry?")
            (setq-local leyline-current (leyline--buffer-internal task response))
          (leyline-request-mode -1))))))
