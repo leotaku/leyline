@@ -102,10 +102,7 @@
           (diff-hunk-next))))
     (prog1 locations)))
 
-(defun leyline--collect-chunks (diff-text buffer-alist)
-  (leyline--augument-simple-chunks (leyline--collect-simple-chunks diff-text) buffer-alist))
-
-(defun leyline--collect-simple-chunks (diff-text)
+(defun leyline--parse-chunks (diff-text)
   (with-current-buffer (get-buffer-create "patch")
     (delete-region (point-min) (point-max))
     (insert diff-text)
@@ -129,7 +126,7 @@
         (forward-line))
       (prog1 result))))
 
-(defun leyline--augument-simple-chunks (chunks buffer-alist)
+(defun leyline--augument-chunks (chunks buffer-alist)
   (let ((result))
     (pcase-dolist (`(,buffer-name ,old ,new) chunks)
       (with-current-buffer (alist-get buffer-name buffer-alist)
@@ -193,9 +190,10 @@
     (nreverse result)))
 
 (defun leyline--apply-diff (diff-text)
-  (let ((locations (leyline--collect-chunks diff-text `((nil . ,(current-buffer)))))
-        (min (point-max))
-        (max (point-min)))
+  (let* ((parsed (leyline--parse-chunks diff-text))
+         (locations (leyline--augument-chunks parsed `((nil . ,(current-buffer)))))
+         (min (point-max))
+         (max (point-min)))
     (prog1 nil
       (save-excursion
         (push (point) buffer-undo-list)
