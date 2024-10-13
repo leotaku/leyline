@@ -209,9 +209,10 @@
           (setq-local leyline-current nil)
           (leyline-request-mode -1))
       (leyline-error-diff
-       (if (y-or-n-p "Failed to receive an apppropriate result, retry?")
-           (setq-local leyline-current (leyline--buffer-internal task response))
-         (leyline-request-mode -1))))))
+       (leyline-request-mode -1)
+       (when (y-or-n-p "Failed to receive an apppropriate result, retry?")
+         (setq-local leyline-current (leyline--buffer-internal task response))
+         (leyline-request-mode +1))))))
 
 (defun leyline--buffer-internal (task &optional old-response)
   (let* ((full-prompt (leyline--construct-prompt task (buffer-string) old-response))
