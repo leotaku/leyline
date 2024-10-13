@@ -90,20 +90,19 @@
     (let ((result))
       (goto-char (point-min))
       (while (< (point) (point-max))
-        (let ((line (buffer-substring-no-properties (1+ (line-beginning-position)) (line-end-position))))
-          (pcase (char-to-string (char-after (point)))
-            ("@"
-             ;; (save-excursion
-             ;;   (re-search-forward "@@.*@@")
-             ;;   (setq line (buffer-substring-no-properties (1+ (point)) (1+ (line-end-position))))
-             ;;   (push (cons line line) result))
-             (push `(nil "" "") result)
-             )
-            ("-" (setf (nth 1 (car result)) (concat (nth 1 (car result)) "\n" line)))
-            ("+" (setf (nth 2 (car result)) (concat (nth 2 (car result)) "\n" line)))
-            (" "
-             (setf (nth 1 (car result)) (concat (nth 1 (car result)) "\n" line))
-             (setf (nth 2 (car result)) (concat (nth 2 (car result)) "\n" line)))))
+        (let ((line (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
+          (cond
+           ((string-prefix-p "---" line))
+           ((string-prefix-p "+++" line))
+           ((string-prefix-p "@" line)
+            (push `(nil "" "") result))
+           ((string-prefix-p "-" line)
+            (setf (nth 1 (car result)) (concat (nth 1 (car result)) "\n" (substring line 1))))
+           ((string-prefix-p "+" line)
+            (setf (nth 2 (car result)) (concat (nth 2 (car result)) "\n" (substring line 1))))
+           ((string-prefix-p " " line)
+            (setf (nth 1 (car result)) (concat (nth 1 (car result)) "\n" (substring line 1)))
+            (setf (nth 2 (car result)) (concat (nth 2 (car result)) "\n" (substring line 1))))))
         (forward-line))
       (prog1 result))))
 
