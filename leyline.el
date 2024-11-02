@@ -83,6 +83,11 @@
      (concat "This is your previous response, but you failed to create a proper diff, please retry!"
              "\n\n" old-response "\n\n"))))
 
+(defun leyline--soft-signal (error-symbol data)
+  (if debug-on-error
+      (signal error-symbol data)
+    (message "%s: %s" (or (get error-symbol 'error-message) "Error") data)))
+
 (defun leyline--parse-chunks (diff-text)
   (with-current-buffer (get-buffer-create "*leyline-patch*")
     (delete-region (point-min) (point-max))
@@ -215,7 +220,7 @@
          (leyline-request-mode +1)))
       (error
        (leyline-request-mode -1)
-       (signal (car err) (cdr err))))))
+       (leyline--soft-signal (car err) (cdr err))))))
 
 (defun leyline--buffer-internal (task &optional old-response)
   (let* ((full-prompt (leyline--construct-prompt task (buffer-string) old-response))
@@ -229,7 +234,7 @@
      (lambda (error message)
        (setq-local leyline-current nil)
        (leyline-request-mode -1)
-       (signal 'leyline-error-provider message)))))
+       (leyline--soft-signal 'leyline-error-provider message)))))
 
 ;;;###autoload
 (defun leyline-buffer (task)
