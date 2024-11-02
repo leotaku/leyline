@@ -51,11 +51,11 @@
 
 (define-error
  'leyline-error-diff
- "Diff is not applicable" 'leyline-error)
+ "Change cannot be applied" 'leyline-error)
 
 (define-error
  'leyline-error-provider
- "Provider error" 'leyline-error)
+ "LLM provider error" 'leyline-error)
 
 (defconst leyline-base-prompt
   (concat
