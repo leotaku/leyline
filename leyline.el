@@ -84,7 +84,7 @@
              "\n\n" old-response "\n\n"))))
 
 (defun leyline--parse-chunks (diff-text)
-  (with-current-buffer (get-buffer-create "patch")
+  (with-current-buffer (get-buffer-create "*leyline-patch*")
     (delete-region (point-min) (point-max))
     (insert diff-text)
     (let ((result))
