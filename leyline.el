@@ -95,7 +95,7 @@
            ((string-prefix-p "---" line))
            ((string-prefix-p "+++" line))
            ((string-prefix-p "@" line)
-            (push `(nil "" "") result))
+            (push (list nil "" "") result))
            ((string-prefix-p "-" line)
             (setf (nth 1 (car result)) (concat (nth 1 (car result)) (substring line 1) "\n")))
            ((string-prefix-p "+" line)
