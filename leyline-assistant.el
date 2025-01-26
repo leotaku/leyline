@@ -199,9 +199,10 @@
 (defun leyline--assistant-internal (task &optional old-response)
   (let* ((full-prompt (leyline--assistant-construct-prompt task (buffer-string) old-response))
          (buffer (current-buffer))
-         (debug-buffer (leyline--assistant-create-debug-buffer full-prompt)))
+         (debug-buffer (leyline--assistant-create-debug-buffer full-prompt))
+         (provider (leyline-select-provider nil)))
     (llm-chat-async
-     leyline-provider
+     provider
      (llm-make-chat-prompt full-prompt)
      (lambda (response)
        (leyline--assistant-handle-response task response buffer debug-buffer))
