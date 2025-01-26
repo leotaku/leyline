@@ -110,8 +110,7 @@
 
 (cl-defun leyline--assistant-needleman-wunsch-diff (a b &optional (score-fn #'equal) (indel-penalty -1))
   (let* ((m (make-vector (1+ (length a)) nil))
-         (score-fn (lambda (a b) (if (funcall score-fn a b) 1 -1)))
-         (indel-penalty -1))
+         (score-fn (lambda (a b) (if (funcall score-fn a b) 1 -1))))
     (dotimes (I (1+ (length a)))
       (setf (aref m I) (make-vector (1+ (length b)) 0)))
     (dotimes (I (1+ (length a)))
