@@ -146,7 +146,7 @@
               (setq i (1- i))))))
       (prog1 result))))
 
-(defun leyline--diff-skip-length (diff)
+(defun leyline--assistant-diff-skip-length (diff)
   (length (seq-take-while (lambda (it) (eq (car-safe it) 'keep)) diff)))
 
 (defun leyline--assistant-apply-diff (diff-text)
@@ -167,8 +167,8 @@
                   (`(insert . ,char) (insert-char char))
                   (`(keep . ,_) (forward-char 1))
                   (`(delete . ,_) (delete-char 1))))
-              (setq min (min min (+ (car pos) (leyline--diff-skip-length diff))))
-              (setq max (max max (- changed-end (leyline--diff-skip-length (reverse diff)))))))))
+              (setq min (min min (+ (car pos) (leyline--assistant-diff-skip-length diff))))
+              (setq max (max max (- changed-end (leyline--assistant-diff-skip-length (reverse diff)))))))))
       (when (<= min max)
         (pulse-momentary-highlight-region min max)))))
 
