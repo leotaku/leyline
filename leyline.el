@@ -164,11 +164,10 @@
     (overlay-put overlay :kind kind)
     (when-let* ((face (leyline-find-overlay '() (leyline-overlays ll) :property 'face)))
       (overlay-put overlay 'face face))
-    (when (string-prefix-p (buffer-substring (overlay-start overlay) (overlay-end overlay)) text)
-      (setq text (substring text (- (overlay-end overlay) (overlay-start overlay)))))
     (save-excursion
       (goto-char (overlay-end overlay))
-      (insert text)
+      (insert (substring text (or (overlay-get overlay :previous-length) 0)))
+      (overlay-put overlay :previous-length (length text))
       (move-overlay overlay (overlay-start overlay) (+ (overlay-end overlay) (length text))))
     (prog1 overlay)))
 
