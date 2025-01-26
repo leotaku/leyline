@@ -149,14 +149,6 @@
 (defun leyline--diff-skip-length (diff)
   (length (seq-take-while (lambda (it) (eq (car-safe it) 'keep)) diff)))
 
-(defun leyline--summarize-diff (diff)
-  (let ((result))
-    (pcase-dolist (`(,kind . ,value) diff)
-      (if (and kind (eq kind (car-safe (car-safe result))))
-          (setf (cdar result) (concat (cdar result) (char-to-string value)))
-        (push (cons kind (char-to-string value)) result)))
-    (nreverse result)))
-
 (defun leyline--assistant-apply-diff (diff-text)
   (let* ((parsed (leyline--assistant-parse-chunks diff-text))
          (locations (leyline--assistant-augument-chunks parsed `((nil . ,(current-buffer)))))
