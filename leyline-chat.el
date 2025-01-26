@@ -35,7 +35,7 @@
     (goto-char (point-max))
     (when (= (pos-bol) (pos-eol))
       (setq n (1- n))
-      (previous-line)
+      (forward-line -1)
       (when (= (pos-bol) (pos-eol))
         (setq n (1- n)))))
   (dotimes (_ n)
