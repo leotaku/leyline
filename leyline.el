@@ -65,6 +65,11 @@
   :type '(alist :key-type string
 		        :value-type (sexp :validate #'listp)))
 
+(defcustom leyline-initial-highlight-responses t
+  "If non-nil, initially highlight LLM responses."
+  :group 'leyline
+  :type 'function)
+
 (defvar-local leyline-current nil
   "The running LLM request for the current buffer.")
 
@@ -162,8 +167,10 @@
     (overlay-put overlay :leyline t)
     (overlay-put overlay :in-progress t)
     (overlay-put overlay :kind kind)
-    (when-let* ((face (leyline-find-overlay '() (leyline-overlays ll) :property 'face)))
-      (overlay-put overlay 'face face))
+    (if (and (length= (leyline-overlays ll) 0)
+             leyline-initial-highlight-responses)
+        (overlay-put overlay 'face 'leyline-highlight-face)
+      (overlay-put overlay 'face (leyline-find-overlay '() (leyline-overlays ll) :property 'face)))
     (save-excursion
       (goto-char (overlay-end overlay))
       (insert (substring text (or (overlay-get overlay :previous-length) 0)))
