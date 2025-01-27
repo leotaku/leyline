@@ -178,10 +178,15 @@
 
 ;;; Utility functions
 
+(defface leyline-highlight-face
+  '((t :inherit italic))
+  "Face for highlighting LLM responses."
+  :group 'leyline)
+
 (defun leyline-highlight-responses (&optional enable)
   (interactive (if (leyline-find-overlay '() (leyline-overlays) :property 'face) '(nil) '(t)))
   (dolist (overlay (leyline-overlays))
-    (overlay-put overlay 'face (if enable 'warning nil))))
+    (overlay-put overlay 'face (if enable 'leyline-highlight-face nil))))
 
 (provide 'leyline)
 
