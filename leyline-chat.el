@@ -67,10 +67,10 @@
       (lambda (_)
         (leyline-request-mode -1)
         (leyline-stream-finish ll :llm-response))
-      (lambda (_ error)
+      (lambda (_ message)
         (leyline-request-mode -1)
         (leyline-stream-finish ll :llm-response)
-        (message "Error: %s" (error-message-string error)))))))
+        (message "Error: %s" message))))))
 
 (defun leyline-chat-focus-or-continue ()
   (interactive)
