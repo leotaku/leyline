@@ -30,6 +30,11 @@
 
 ;;; Code:
 
+(defcustom leyline-chat-initial-major-mode 'text-mode
+  "Major mode command symbol to use for LLM chat buffers."
+  :group 'leyline
+  :type 'function)
+
 (defun leyline--chat-insert-newlines (n)
   (save-excursion
     (goto-char (point-max))
@@ -82,7 +87,7 @@
   (interactive "sAsk: ")
   (let ((ll (generate-new-buffer "*leyline-chat*")))
     (with-current-buffer ll
-      (text-mode)
+      (funcall leyline-chat-initial-major-mode)
       (leyline-chat-mode +1)
       (save-excursion
         (delete-region (point-min) (point-max))
