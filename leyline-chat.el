@@ -99,7 +99,8 @@
   "Minor for chat-like LLM interactions."
   :group 'leyline
   :keymap `(("\C-c\C-c" . leyline-chat-focus-or-continue)
-            ("\C-c h" . leyline-highlight-responses)
+            ("\C-c\C-q" . kill-buffer-and-window)
+            ("\C-c \C-h" . leyline-highlight-responses)
             ("\C-c p" . leyline-select-provider)
             ("\C-c c" . leyline-select-configuration)))
 
