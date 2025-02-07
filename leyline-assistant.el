@@ -95,8 +95,8 @@ This is your task:
       (with-current-buffer (alist-get buffer-name buffer-alist)
         (save-excursion
           (goto-char 0)
-          (if-let ((end (search-forward old nil t nil))
-                   (start (match-beginning 0)))
+          (if-let* ((end (search-forward old nil t nil))
+                    (start (match-beginning 0)))
               (if (not (search-forward old nil t nil))
                   (push `(,(current-buffer) nil ,(cons start end) ,(cons old 0) ,(cons new 0) nil) result)
                 (signal 'leyline-error-diff "Multiple matches"))
@@ -153,7 +153,7 @@ This is your task:
       (save-excursion
         (push (point) buffer-undo-list)
         (atomic-change-group
-          (pcase-dolist (`(,buf ,_ ,pos ,old ,new ,_) locations)
+          (pcase-dolist (`(,_buf ,_ ,pos ,old ,new ,_) locations)
             (goto-char (car pos))
             (let ((diff (leyline--assistant-needleman-wunsch-diff (car old) (car new)))
                   (changed-end (+ (car pos) (length (car new)))))
