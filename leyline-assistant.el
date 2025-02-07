@@ -38,33 +38,28 @@
  'leyline-error-diff
  "Change cannot be applied" 'leyline-error)
 
-(defconst leyline-assistant-base-prompt
-  (concat
-   "You are a large language model and a careful programmer.\n"
-   "Provide code and only code as output without any additional text, prompt or note.\n"
-   "Do not add an explanation! Do not add code block markers!\n"
-   "Do NOT add any code block markers you idiot!!!!\n"
-   "\n"
-   "From now on, only respond in the form of a minimal patch-compatible diff!\n"
-   "Make sure the diffs, especially the old content are absolutely correct!\n"
-   "Return the most minimal possible semantic diffs!\n"
-   "Try to always include at least three non-empty lines of context."
-   "Return earlier diff sections earlier in the response!!!"
-   "\n"))
+(llm-defprompt leyline-assistant-prompt
+  "You are a large language model and a careful programmer.
 
-(defun leyline--assistant-construct-prompt (task buffer-text &optional old-response)
-  (concat
-   leyline-assistant-base-prompt
-   "\n\n"
-   "Look at this code:\n\n"
-   buffer-text
-   "\n\n"
-   "This is your task:\n\n"
-   task
-   "\n\n"
-   (when old-response
-     (concat "This is your previous response, but you failed to create a proper diff, please retry!"
-             "\n\n" old-response "\n\n"))))
+Provide code and only code as output without any additional text, prompt or note.
+Do not add an explanation! Do not add code block markers!
+Do NOT add any code block markers you idiot!!!!
+
+From now on, only respond in the form of a minimal patch-compatible diff!
+Make sure the diffs, especially the old content are absolutely correct!
+Return the most minimal possible semantic diffs!
+Try to always include at least three non-empty lines of context.
+Return earlier diff sections earlier in the response!!!
+
+Look at this code:
+
+{{code}}
+
+This is your task:
+
+{{task}}
+
+")
 
 (defun leyline--assistant-soft-signal (error-symbol data)
   (if debug-on-error
@@ -197,10 +192,11 @@
        (leyline--assistant-soft-signal (car err) (cdr err))))))
 
 (defun leyline--assistant-internal (task &optional old-response)
-  (let* ((full-prompt (leyline--assistant-construct-prompt task (buffer-string) old-response))
+  (let* ((provider (leyline-select-provider nil))
+         (full-prompt (llm-prompt-fill 'leyline-assistant-prompt provider
+                                       :code (buffer-string) :task task))
          (buffer (current-buffer))
-         (debug-buffer (leyline--assistant-create-debug-buffer full-prompt))
-         (provider (leyline-select-provider nil)))
+         (debug-buffer (leyline--assistant-create-debug-buffer full-prompt)))
     (llm-chat-async
      provider
      (llm-make-chat-prompt full-prompt)
