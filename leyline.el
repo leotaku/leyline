@@ -175,7 +175,7 @@
       (goto-char (overlay-end overlay))
       (insert (substring text (or (overlay-get overlay :previous-length) 0)))
       (overlay-put overlay :previous-length (length text))
-      (move-overlay overlay (overlay-start overlay) (+ (overlay-end overlay) (length text))))
+      (move-overlay overlay (overlay-start overlay) (+ (overlay-start overlay) (length text))))
     (prog1 overlay)))
 
 (defun leyline-stream-finish (ll kind)
