@@ -83,16 +83,17 @@
       (leyline-chat-focus)
     (leyline-chat-continue)))
 
-(defun leyline-chat (message)
-  (interactive "sAsk: ")
+(defun leyline-chat (&optional message)
+  (interactive (and (not current-prefix-arg) `(,(read-string "Ask: "))))
   (let ((ll (generate-new-buffer "*leyline-chat*")))
     (with-current-buffer ll
       (funcall leyline-chat-initial-major-mode)
       (leyline-chat-mode +1)
-      (save-excursion
-        (delete-region (point-min) (point-max))
-        (insert message "\n"))
-      (leyline-chat-continue ll))
+      (when message
+        (save-excursion
+          (delete-region (point-min) (point-max))
+          (insert message "\n"))
+        (leyline-chat-continue ll)))
     (pop-to-buffer ll)))
 
 (define-minor-mode leyline-chat-mode
