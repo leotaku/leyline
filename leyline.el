@@ -1,6 +1,6 @@
 ;;; leyline.el --- Higher-level large language model abstractions  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2024-2025 Leo Gaskin
+;; Copyright (C) 2024-2026 Leo Gaskin
 
 ;; Author: Leo Gaskin <leo.gaskin@le0.gs>
 ;; Created: 17 September 2024
